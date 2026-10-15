@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Học Tập - Nhân Giống Thuần Chủng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tap-item { transition: all 0.2s ease-in-out; }
+        .tap-item.selected { 
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* indigo-500 */
+            border-color: #4f46e5; /* indigo-600 */
+        }
+        .drop-zone { transition: all 0.2s ease; min-height: 80px; }
+        .drop-zone.active-target { background-color: #e0e7ff; border-color: #4f46e5; }
+        
+        /* Custom Radio Buttons */
+        input[type="radio"] { accent-color: #4f46e5; width: 1.2rem; height: 1.2rem; margin-top: 0.15rem; }
+        
+        /* Disabled state styling for review mode */
+        .review-mode input:disabled { opacity: 0.7; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white pt-10 pb-16 px-4 rounded-b-[2.5rem] shadow-lg">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-indigo-200 font-semibold tracking-wider text-sm uppercase mb-2">Công Nghệ Chăn Nuôi 11</h2>
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Bài 5. Nhân Giống Vật Nuôi</h1>
+            <p class="text-lg text-purple-100 bg-white/10 inline-block px-4 py-1.5 rounded-full backdrop-blur-sm">Phần I: Nhân Giống Thuần Chủng</p>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 -mt-8 space-y-6">
+        <!-- Thông tin HS -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-lg font-bold text-indigo-800 mb-4 border-b pb-2"><i class="fas fa-user-graduate mr-2"></i>Thông tin học sinh</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Họ và tên</label>
+                    <input type="text" id="hs-name" class="w-full border-slate-300 rounded-xl px-4 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Nhập họ tên...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Lớp</label>
+                    <input type="text" id="hs-class" class="w-full border-slate-300 rounded-xl px-4 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Nhập tên lớp...">
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN 1: TRẮC NGHIỆM -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 quiz-section">
+            <h3 class="text-xl font-bold text-purple-700 mb-6 flex items-center">
+                <span class="bg-purple-100 text-purple-700 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">I</span>
+                Trắc nghiệm khách quan (4.0 điểm)
+            </h3>
+            <div class="space-y-6" id="mcq-container">
+                <!-- Câu hỏi được sinh bằng JS để code gọn gàng -->
+            </div>
+        </div>
+
+        <!-- PHẦN 2: ĐÚNG - SAI -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 quiz-section">
+            <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">II</span>
+                Câu hỏi Đúng / Sai (2.0 điểm)
+            </h3>
+            <p class="text-sm text-slate-500 mb-6 italic">Hãy chọn Đúng hoặc Sai cho mỗi nhận định dưới đây.</p>
+            <div class="space-y-4" id="tf-container">
+                <!-- Câu hỏi TF -->
+            </div>
+        </div>
+
+        <!-- PHẦN 3: ĐIỀN KHUYẾT -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 quiz-section">
+            <h3 class="text-xl font-bold text-fuchsia-700 mb-4 flex items-center">
+                <span class="bg-fuchsia-100 text-fuchsia-700 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">III</span>
+                Điền khuyết (2.0 điểm)
+            </h3>
+            <div class="text-lg leading-relaxed text-slate-700 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                Nhân giống thuần chủng là cho giao phối giữa con đực và con cái thuộc 
+                <select id="fill-1" class="border-2 border-fuchsia-300 rounded-lg px-2 py-1 bg-white text-fuchsia-800 font-semibold focus:ring-2 focus:ring-fuchsia-500 outline-none mx-1">
+                    <option value="">--- Chọn ---</option>
+                    <option value="khac">các giống khác nhau</option>
+                    <option value="cung">cùng một giống</option>
+                    <option value="loai">hai loài khác nhau</option>
+                </select>
+                để thiết lập và duy trì các tính trạng 
+                <select id="fill-2" class="border-2 border-fuchsia-300 rounded-lg px-2 py-1 bg-white text-fuchsia-800 font-semibold focus:ring-2 focus:ring-fuchsia-500 outline-none mx-1">
+                    <option value="">--- Chọn ---</option>
+                    <option value="thaydoi">thay đổi liên tục</option>
+                    <option value="ondinh">ổn định</option>
+                    <option value="uuthelai">ưu thế lai</option>
+                </select>
+                mà con vật sẽ truyền cho thế hệ tiếp theo.
+            </div>
+            <div id="fill-feedback" class="mt-2 text-sm hidden font-medium"></div>
+        </div>
+
+        <!-- PHẦN 4: GHÉP NỐI (TAP TO MATCH) -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 quiz-section">
+            <h3 class="text-xl font-bold text-blue-700 mb-2 flex items-center">
+                <span class="bg-blue-100 text-blue-700 w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm">IV</span>
+                Ghép nối (2.0 điểm)
+            </h3>
+            <div class="bg-blue-50 text-blue-800 text-sm p-3 rounded-lg border border-blue-200 mb-6 flex items-start">
+                <i class="fas fa-mobile-alt mt-1 mr-3 text-lg"></i>
+                <p><strong>Hướng dẫn trên Điện thoại & Máy tính:</strong> <br>1. <strong>Chạm</strong> vào một thẻ ở hộp "Dữ liệu" bên dưới để chọn.<br>2. <strong>Chạm</strong> vào "Ô trống" tương ứng để đưa thẻ vào.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Nơi chứa các item ban đầu -->
+                <div class="w-full md:w-1/3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 class="font-semibold text-slate-600 mb-3 text-center border-b pb-2">Dữ liệu</h4>
+                    <div id="source-bank" class="space-y-3 min-h-[200px]">
+                        <div class="tap-item cursor-pointer bg-white border-2 border-slate-300 rounded-lg p-3 text-center text-sm font-medium shadow-sm hover:border-indigo-400" data-id="item-A">
+                            Giống gà Hồ, lợn ỉ, lợn Cỏ
+                        </div>
+                        <div class="tap-item cursor-pointer bg-white border-2 border-slate-300 rounded-lg p-3 text-center text-sm font-medium shadow-sm hover:border-indigo-400" data-id="item-B">
+                            Lợn đực Móng Cái x Lợn cái Móng Cái
+                        </div>
+                        <div class="tap-item cursor-pointer bg-white border-2 border-slate-300 rounded-lg p-3 text-center text-sm font-medium shadow-sm hover:border-indigo-400" data-id="item-C">
+                            Lợn Yorkshire, Bò Holstein Friesian
+                        </div>
+                        <div class="tap-item cursor-pointer bg-white border-2 border-slate-300 rounded-lg p-3 text-center text-sm font-medium shadow-sm hover:border-indigo-400" data-id="item-D">
+                            Giống hệt thế hệ trước, ổn định
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Các ô đích -->
+                <div class="w-full md:w-2/3 space-y-4">
+                    <h4 class="font-semibold text-slate-600 mb-3 text-center border-b pb-2">Ghép với mục đích / Đặc điểm tương ứng</h4>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-1/2 text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-indigo-900">
+                            1. Bảo tồn các giống vật nuôi nội quý hiếm đang có nguy cơ tuyệt chủng.
+                        </div>
+                        <div class="w-1/2 drop-zone border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-2 cursor-pointer hover:bg-slate-50" data-target="1">
+                            <span class="text-slate-400 text-sm">Chạm vào đây</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-1/2 text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-indigo-900">
+                            2. Tăng số lượng đối với giống nhập nội.
+                        </div>
+                        <div class="w-1/2 drop-zone border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-2 cursor-pointer hover:bg-slate-50" data-target="2">
+                            <span class="text-slate-400 text-sm">Chạm vào đây</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-1/2 text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-indigo-900">
+                            3. Đặc điểm di truyền của đời con khi nhân giống thuần chủng.
+                        </div>
+                        <div class="w-1/2 drop-zone border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-2 cursor-pointer hover:bg-slate-50" data-target="3">
+                            <span class="text-slate-400 text-sm">Chạm vào đây</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-1/2 text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-indigo-900">
+                            4. Ví dụ minh họa cho phép lai nhân giống thuần chủng.
+                        </div>
+                        <div class="w-1/2 drop-zone border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-2 cursor-pointer hover:bg-slate-50" data-target="4">
+                            <span class="text-slate-400 text-sm">Chạm vào đây</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="match-feedback" class="mt-4 text-sm font-medium hidden text-center"></div>
+        </div>
+
+        <!-- CONTROL BAR -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 sticky bottom-4 z-50">
+            <div id="score-display" class="hidden">
+                <span class="text-slate-500">Điểm của bạn:</span>
+                <span class="text-3xl font-bold text-indigo-600 ml-2" id="final-score">0/10</span>
+            </div>
+            <div id="message-box" class="text-red-500 font-medium hidden"></div>
+            
+            <div class="flex gap-4 w-full md:w-auto">
+                <button id="btn-retry" class="hidden flex-1 md:flex-none px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition items-center justify-center">
+                    <i class="fas fa-redo-alt mr-2"></i> Làm lại
+                </button>
+                <button id="btn-submit" class="flex-1 md:flex-none px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition transform hover:-translate-y-0.5 items-center justify-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Nộp bài
+                </button>
+            </div>
+        </div>
+
+        <!-- SUMMARY / GHI NHỚ (Chỉ hiện khi nộp bài) -->
+        <div id="summary-section" class="hidden bg-gradient-to-br from-indigo-900 to-purple-900 text-white p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                <i class="fas fa-lightbulb text-9xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-yellow-300 mb-4 border-b border-white/20 pb-2 relative z-10">
+                <i class="fas fa-star mr-2"></i> KIẾN THỨC GHI NHỚ TRỌNG TÂM
+            </h3>
+            <ul class="space-y-3 text-lg relative z-10 list-disc pl-5 text-indigo-100">
+                <li><strong class="text-white">Khái niệm:</strong> Nhân giống thuần chủng là giao phối giữa đực và cái <span class="text-yellow-300">CÙNG MỘT GIỐNG</span>.</li>
+                <li><strong class="text-white">Đặc điểm:</strong> Giữ được đặc tính di truyền <span class="text-yellow-300">ĐỒNG NHẤT và ỔN ĐỊNH</span> qua các thế hệ (đời con giống hệt bố mẹ).</li>
+                <li><strong class="text-white">Mục đích chính:</strong> 
+                    <ul class="list-circle pl-6 mt-1 space-y-1 text-base">
+                        <li><span class="text-green-300">Bảo tồn</span> giống nội quý hiếm (Lợn ỉ, Gà Hồ...).</li>
+                        <li><span class="text-green-300">Tăng số lượng</span> để làm nguyên liệu cho lai giống (nhân thuần lợn Móng Cái làm nái nền).</li>
+                        <li><span class="text-green-300">Phát triển</span> số lượng đối với giống mới nhập nội.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        // Data for MCQs
+        const mcqData = [
+            {
+                q: "Cho giao phối con đực và con cái thuộc cùng một giống để duy trì các tính trạng ổn định qua các thế hệ là phương pháp nào?",
+                opts: ["Lai kinh tế", "Nhân giống thuần chủng", "Lai cải tạo", "Lai xa"],
+                ans: 1
+            },
+            {
+                q: "Giống thuần chủng được tạo ra và duy trì bằng nhân giống thuần chủng có đặc điểm nào sau đây?",
+                opts: ["Thế hệ con cháu giống với thế hệ trước", "Đặc tính di truyền thay đổi qua từng thế hệ", "Đời con mang đặc điểm của các giống khác nhau", "Đời con thường bất thụ"],
+                ans: 0
+            },
+            {
+                q: "Sơ đồ: (♂ Lợn Móng Cái × ♀ Lợn Móng Cái) → Lợn Móng Cái mô tả phương pháp nào?",
+                opts: ["Lai kinh tế đơn giản", "Lai cải tạo", "Nhân giống thuần chủng", "Lai xa"],
+                ans: 2
+            },
+            {
+                q: "Nhân giống thuần chủng các giống vật nuôi nội có số lượng còn rất ít như lợn ỉ, gà Hồ nhằm mục đích gì?",
+                opts: ["Tạo con lai nuôi thương phẩm", "Duy trì và bảo tồn giống", "Tạo giống mới năng suất cao", "Khai thác ưu thế lai"],
+                ans: 1
+            },
+            {
+                q: "Đối với các giống nhập nội (ví dụ Lợn Yorkshire), nhân giống thuần chủng nhằm mục đích chính là gì?",
+                opts: ["Phát triển về số lượng", "Tạo con lai ưu thế lai", "Cải tạo thành giống mới", "Giảm sự thích nghi"],
+                ans: 0
+            },
+            {
+                q: "Nhân giống thuần chủng khác lai giống cơ bản ở đặc điểm nào của con đực và con cái được giao phối?",
+                opts: ["Năng suất cao hay thấp", "Cùng màu lông hay khác", "Cùng giống hay khác giống", "Giống nội hay nhập nội"],
+                ans: 2
+            },
+            {
+                q: "Vì sao khi cần tăng số lượng của một giống vật nuôi mới nhập nội, nhân giống thuần chủng phù hợp hơn lai giống?",
+                opts: ["Đời con thích nghi tốt hơn với địa phương", "Đời con giữ đặc tính di truyền ổn định của giống đó", "Đời con sinh trưởng nhanh hơn bố mẹ", "Đời con có ưu thế lai cao"],
+                ans: 1
+            },
+            {
+                q: "Trong chương trình 'nạc hóa đàn lợn', lợn Móng Cái được nhân giống theo phương pháp thuần chủng để làm gì?",
+                opts: ["Tạo lợn thịt siêu nạc trực tiếp", "Lai tạo ra giống lợn ngoại", "Làm nái nền để lai với đực ngoại", "Thay thế lợn Yorkshire"],
+                ans: 2
+            },
+            {
+                q: "Khi lai giống, đời con mang vật chất di truyền của nhiều giống. Còn khi nhân giống thuần chủng, đời con mang vật chất di truyền của?",
+                opts: ["Nhiều loài khác nhau", "Chỉ giống của con bố", "Chỉ giống của con mẹ", "Duy nhất một giống của cả bố và mẹ"],
+                ans: 3
+            },
+            {
+                q: "Mục đích là bảo tồn giống lợn ỉ, nhưng người ta lại cho lợn ỉ cái phối với lợn đực Duroc. Vì sao cách làm này KHÔNG phù hợp?",
+                opts: ["Đời con không còn là lợn ỉ thuần chủng nữa", "Lợn ỉ và lợn Duroc không giao phối được", "Đời con sẽ bị bất thụ", "Đời con lớn quá chậm"],
+                ans: 0
+            }
+        ];
+
+        // Data for T/F
+        const tfData = [
+            { q: "Nhân giống thuần chủng tạo ra con lai có ưu thế lai cao hơn bố mẹ.", ans: "F" },
+            { q: "Mục đích của nhân giống thuần chủng là để bảo tồn các giống vật nuôi quý hiếm.", ans: "T" },
+            { q: "Giao phối giữa bò đực Holstein Friesian và bò cái Vàng là nhân giống thuần chủng.", ans: "F" },
+            { q: "Nhân giống thuần chủng giúp thiết lập và duy trì các tính trạng ổn định qua các thế hệ.", ans: "T" },
+            { q: "Giống thuần được tạo ra bằng nhân giống thuần chủng có thế hệ con cháu giống với thế hệ trước.", ans: "T" },
+            { q: "Mục đích của nhân giống thuần chủng đối với giống nhập nội là để tạo ra con lai thương phẩm.", ans: "F" },
+            { q: "Khi nhân giống thuần chủng, đời con sinh ra mang vật chất di truyền của nhiều giống khác nhau.", ans: "F" },
+            { q: "Nhân giống thuần chủng lợn Móng Cái có thể nhằm mục đích tạo đàn nái nền cho các chương trình lai tạo.", ans: "T" }
+        ];
+
+        // Answers for Fill blanks
+        const fillAnswers = { "fill-1": "cung", "fill-2": "ondinh" };
+
+        // Answers for Match
+        const matchAnswers = { "1": "item-A", "2": "item-C", "3": "item-D", "4": "item-B" };
+
+        // Init UI
+        function initQuiz() {
+            // Render MCQs
+            const mcqCont = document.getElementById('mcq-container');
+            mcqCont.innerHTML = '';
+            mcqData.forEach((item, index) => {
+                let optsHtml = item.opts.map((opt, oIndex) => `
+                    <label class="flex items-start p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition opt-label" data-q="${index}" data-val="${oIndex}">
+                        <input type="radio" name="mcq-${index}" value="${oIndex}" class="mr-3 mt-0.5">
+                        <span class="text-slate-700">${opt}</span>
+                    </label>
+                `).join('');
+                
+                mcqCont.innerHTML += `
+                    <div class="mcq-item" data-index="${index}">
+                        <p class="font-semibold text-slate-800 mb-3"><span class="text-purple-600 mr-1">Câu ${index + 1}:</span> ${item.q}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">${optsHtml}</div>
+                        <div class="feedback text-sm mt-2 hidden font-medium"></div>
+                    </div>
+                `;
+            });
+
+            // Render T/F
+            const tfCont = document.getElementById('tf-container');
+            tfCont.innerHTML = '';
+            tfData.forEach((item, index) => {
+                tfCont.innerHTML += `
+                    <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 tf-item" data-index="${index}">
+                        <p class="text-slate-700 font-medium mb-3 md:mb-0 md:mr-4 flex-1"><span class="text-indigo-600 mr-1">${index + 1}.</span> ${item.q}</p>
+                        <div class="flex gap-4 min-w-[150px] justify-end">
+                            <label class="flex items-center cursor-pointer px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-green-50 hover:border-green-300 transition tf-label">
+                                <input type="radio" name="tf-${index}" value="T" class="mr-2 accent-green-600"> <span class="text-green-700 font-semibold">Đúng</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-red-50 hover:border-red-300 transition tf-label">
+                                <input type="radio" name="tf-${index}" value="F" class="mr-2 accent-red-600"> <span class="text-red-700 font-semibold">Sai</span>
+                            </label>
+                        </div>
+                        <div class="feedback w-full md:w-auto text-sm mt-2 md:mt-0 md:ml-4 hidden font-medium"></div>
+                    </div>
+                `;
+            });
+        }
+
+        // Tap to Match Logic
+        let selectedTapItem = null;
+        
+        function setupTapToMatch() {
+            const tapItems = document.querySelectorAll('.tap-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            const sourceBank = document.getElementById('source-bank');
+
+            // Select an item from source or a zone
+            tapItems.forEach(item => {
+                item.onclick = function(e) {
+                    if (document.body.classList.contains('review-mode')) return;
+                    e.stopPropagation(); // Prevent trigger parent drop-zone click
+                    
+                    // Deselect previous
+                    if (selectedTapItem) selectedTapItem.classList.remove('selected');
+                    
+                    // If clicking the same item, just deselect
+                    if (selectedTapItem === this) {
+                        selectedTapItem = null;
+                        return;
+                    }
+
+                    selectedTapItem = this;
+                    this.classList.add('selected');
+                };
+            });
+
+            // Click on drop zone
+            dropZones.forEach(zone => {
+                zone.onclick = function() {
+                    if (document.body.classList.contains('review-mode')) return;
+                    
+                    if (selectedTapItem) {
+                        // If zone already has an item, move it back to bank first
+                        if (this.children.length > 0 && this.children[0].classList.contains('tap-item')) {
+                            sourceBank.appendChild(this.children[0]);
+                        }
+                        
+                        // Clear the "Chạm vào đây" text if it exists
+                        if (this.querySelector('span')) {
+                            this.querySelector('span').style.display = 'none';
+                        }
+                        
+                        // Append new item
+                        this.appendChild(selectedTapItem);
+                        selectedTapItem.classList.remove('selected');
+                        selectedTapItem = null;
+                    } else {
+                        // If no item selected but clicking zone, maybe move item back?
+                        if (this.children.length > 0 && this.children[0].classList.contains('tap-item')) {
+                            sourceBank.appendChild(this.children[0]);
+                            if (this.querySelector('span')) {
+                                this.querySelector('span').style.display = 'inline';
+                            }
+                        }
+                    }
+                };
+            });
+            
+            // Allow clicking source bank to return item
+            sourceBank.onclick = function() {
+                if (document.body.classList.contains('review-mode')) return;
+                if (selectedTapItem) {
+                    this.appendChild(selectedTapItem);
+                    selectedTapItem.classList.remove('selected');
+                    selectedTapItem = null;
+                }
+            }
+        }
+
+        // Submit Logic
+        function submitQuiz() {
+            const name = document.getElementById('hs-name').value.trim();
+            const hsClass = document.getElementById('hs-class').value.trim();
+            const msgBox = document.getElementById('message-box');
+
+            if (!name || !hsClass) {
+                msgBox.textContent = "Vui lòng nhập Họ tên và Lớp trước khi nộp bài!";
+                msgBox.classList.remove('hidden');
+                setTimeout(() => msgBox.classList.add('hidden'), 3000);
+                return;
+            }
+
+            let totalScore = 0;
+            const SCORE_PER_MCQ = 4.0 / 10; // 4 pts / 10 qs
+            const SCORE_PER_TF = 2.0 / 8;   // 2 pts / 8 qs
+            const SCORE_PER_FILL = 2.0 / 2; // 2 pts / 2 blanks
+            const SCORE_PER_MATCH = 2.0 / 4;// 2 pts / 4 pairs
+
+            document.body.classList.add('review-mode'); // Disable inputs via CSS
+
+            // Grade MCQ
+            document.querySelectorAll('.mcq-item').forEach((item, index) => {
+                const selected = item.querySelector(`input[name="mcq-${index}"]:checked`);
+                const feedback = item.querySelector('.feedback');
+                feedback.classList.remove('hidden');
+                
+                // Disable inputs
+                item.querySelectorAll('input').forEach(i => i.disabled = true);
+
+                if (selected) {
+                    const val = parseInt(selected.value);
+                    if (val === mcqData[index].ans) {
+                        totalScore += SCORE_PER_MCQ;
+                        feedback.textContent = "✓ Chính xác";
+                        feedback.className = "feedback text-sm mt-2 font-medium text-green-600 bg-green-50 p-2 rounded-lg inline-block";
+                        selected.closest('.opt-label').classList.add('bg-green-100', 'border-green-400');
+                    } else {
+                        feedback.textContent = "✗ Sai. Đáp án đúng là: " + mcqData[index].opts[mcqData[index].ans];
+                        feedback.className = "feedback text-sm mt-2 font-medium text-red-600 bg-red-50 p-2 rounded-lg inline-block";
+                        selected.closest('.opt-label').classList.add('bg-red-100', 'border-red-400');
+                        // Highlight correct one
+                        item.querySelector(`input[value="${mcqData[index].ans}"]`).closest('.opt-label').classList.add('bg-green-50', 'border-green-400');
+                    }
+                } else {
+                    feedback.textContent = "⚠ Chưa chọn đáp án. Đáp án đúng: " + mcqData[index].opts[mcqData[index].ans];
+                    feedback.className = "feedback text-sm mt-2 font-medium text-orange-500 bg-orange-50 p-2 rounded-lg inline-block";
+                }
+            });
+
+            // Grade T/F
+            document.querySelectorAll('.tf-item').forEach((item, index) => {
+                const selected = item.querySelector(`input[name="tf-${index}"]:checked`);
+                const feedback = item.querySelector('.feedback');
+                feedback.classList.remove('hidden');
+                
+                item.querySelectorAll('input').forEach(i => i.disabled = true);
+
+                if (selected) {
+                    if (selected.value === tfData[index].ans) {
+                        totalScore += SCORE_PER_TF;
+                        feedback.innerHTML = "<i class='fas fa-check text-green-600'></i>";
+                        selected.closest('label').classList.add('bg-green-100', 'border-green-400');
+                    } else {
+                        feedback.innerHTML = "<i class='fas fa-times text-red-600'></i>";
+                        selected.closest('label').classList.add('bg-red-100', 'border-red-400');
+                    }
+                } else {
+                    feedback.innerHTML = "<i class='fas fa-exclamation-triangle text-orange-500'></i>";
+                }
+            });
+
+            // Grade Fill blanks
+            const f1 = document.getElementById('fill-1');
+            const f2 = document.getElementById('fill-2');
+            f1.disabled = true; f2.disabled = true;
+            let fillCorrect = 0;
+            if (f1.value === fillAnswers['fill-1']) { fillCorrect++; f1.classList.add('bg-green-100', 'border-green-500'); }
+            else { f1.classList.add('bg-red-100', 'border-red-500'); }
+            
+            if (f2.value === fillAnswers['fill-2']) { fillCorrect++; f2.classList.add('bg-green-100', 'border-green-500'); }
+            else { f2.classList.add('bg-red-100', 'border-red-500'); }
+            
+            totalScore += fillCorrect * SCORE_PER_FILL;
+            
+            const fillFb = document.getElementById('fill-feedback');
+            fillFb.classList.remove('hidden');
+            if(fillCorrect === 2) {
+                fillFb.textContent = "✓ Điền khuyết chính xác hoàn toàn!";
+                fillFb.className = "mt-3 text-sm font-medium text-green-600 bg-green-50 p-2 rounded-lg inline-block";
+            } else {
+                fillFb.textContent = "✗ Có chỗ chưa đúng. Đáp án: ...thuộc [cùng một giống]... tính trạng [ổn định].";
+                fillFb.className = "mt-3 text-sm font-medium text-red-600 bg-red-50 p-2 rounded-lg inline-block";
+            }
+
+            // Grade Match
+            let matchCorrect = 0;
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const targetId = zone.getAttribute('data-target');
+                const correctAnswer = matchAnswers[targetId];
+                
+                // Remove tap events by CSS pointer-events
+                zone.style.pointerEvents = 'none';
+                
+                if (zone.children.length > 0 && zone.children[0].classList.contains('tap-item')) {
+                    const child = zone.children[0];
+                    if (child.getAttribute('data-id') === correctAnswer) {
+                        matchCorrect++;
+                        child.classList.remove('border-slate-300');
+                        child.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+                    } else {
+                        child.classList.remove('border-slate-300');
+                        child.classList.add('border-red-500', 'bg-red-50', 'text-red-800');
+                    }
+                }
+            });
+            document.getElementById('source-bank').style.pointerEvents = 'none';
+
+            totalScore += matchCorrect * SCORE_PER_MATCH;
+            
+            const matchFb = document.getElementById('match-feedback');
+            matchFb.classList.remove('hidden');
+            matchFb.textContent = `Ghép nối đúng: ${matchCorrect}/4`;
+            matchFb.className = `mt-4 text-sm font-medium p-2 rounded-lg inline-block ${matchCorrect === 4 ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50'}`;
+
+            // Show Score and Summary
+            totalScore = Math.round(totalScore * 10) / 10; // Round to 1 decimal
+            const scoreEl = document.getElementById('score-display');
+            document.getElementById('final-score').textContent = `${totalScore}/10`;
+            scoreEl.classList.remove('hidden');
+            scoreEl.classList.add('flex', 'items-center');
+
+            document.getElementById('btn-submit').classList.add('hidden');
+            document.getElementById('btn-retry').classList.remove('hidden');
+            document.getElementById('btn-retry').classList.add('flex');
+            
+            document.getElementById('summary-section').classList.remove('hidden');
+            
+            // Scroll to summary
+            document.getElementById('summary-section').scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        // Retry Logic
+        function resetQuiz() {
+            // Remove review mode
+            document.body.classList.remove('review-mode');
+            
+            // Reset MCQs
+            document.querySelectorAll('input[type="radio"]').forEach(r => {
+                r.checked = false;
+                r.disabled = false;
+            });
+            document.querySelectorAll('.opt-label, .tf-label').forEach(l => {
+                l.classList.remove('bg-green-100', 'border-green-400', 'bg-red-100', 'border-red-400', 'bg-green-50', 'bg-red-50');
+            });
+            document.querySelectorAll('.feedback').forEach(f => f.classList.add('hidden'));
+
+            // Reset Fill
+            const f1 = document.getElementById('fill-1');
+            const f2 = document.getElementById('fill-2');
+            f1.value = ""; f2.value = "";
+            f1.disabled = false; f2.disabled = false;
+            f1.className = "border-2 border-fuchsia-300 rounded-lg px-2 py-1 bg-white text-fuchsia-800 font-semibold focus:ring-2 focus:ring-fuchsia-500 outline-none mx-1";
+            f2.className = "border-2 border-fuchsia-300 rounded-lg px-2 py-1 bg-white text-fuchsia-800 font-semibold focus:ring-2 focus:ring-fuchsia-500 outline-none mx-1";
+            document.getElementById('fill-feedback').classList.add('hidden');
+
+            // Reset Match
+            const sourceBank = document.getElementById('source-bank');
+            sourceBank.style.pointerEvents = 'auto';
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.style.pointerEvents = 'auto';
+                if (zone.children.length > 0 && zone.children[0].classList.contains('tap-item')) {
+                    const item = zone.children[0];
+                    item.className = "tap-item cursor-pointer bg-white border-2 border-slate-300 rounded-lg p-3 text-center text-sm font-medium shadow-sm hover:border-indigo-400";
+                    sourceBank.appendChild(item);
+                }
+                if (zone.querySelector('span')) zone.querySelector('span').style.display = 'inline';
+            });
+            document.getElementById('match-feedback').classList.add('hidden');
+            selectedTapItem = null;
+
+            // UI toggles
+            document.getElementById('score-display').classList.add('hidden');
+            document.getElementById('score-display').classList.remove('flex');
+            document.getElementById('btn-submit').classList.remove('hidden');
+            document.getElementById('btn-retry').classList.add('hidden');
+            document.getElementById('btn-retry').classList.remove('flex');
+            document.getElementById('summary-section').classList.add('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        window.onload = () => {
+            initQuiz();
+            setupTapToMatch();
+            document.getElementById('btn-submit').addEventListener('click', submitQuiz);
+            document.getElementById('btn-retry').addEventListener('click', resetQuiz);
+        };
+    </script>
+</body>
+</html>
